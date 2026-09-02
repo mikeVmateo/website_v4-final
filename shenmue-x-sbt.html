@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mike Mateo</title>
+    <meta name="description" content="Digital aesthetics - Experimental sound design.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="stylesheet" href="style.css">
+      <link href='https://fonts.googleapis.com/css?family=Bebas Neue' rel='stylesheet'>
+</head>
+<body>
+    <div id="app-layout">
+        <img src="logo.png" id="mobile-toggle" alt="Menu">
+        <nav id="sidebar">
+            <img src="logo.png" alt="Logo Mike Mateo" class="sidebar-logo">
+  <ul class="project-list">
+    <li><a href="index.html" class="inactive">If You Really (-) Me Too</a></li>
+    <li><a href="bestseller-rmx.html" class="inactive">BESTSELLER [RMX]</a></li>
+    <li><a href="tears-plui.html" class="inactive">tears plui</a></li>
+    <li><a href="shenmue-x-sbt.html" class="active">SHENMUE x SBT</a></li>
+    <li><a href="sickospiral.html" class="inactive">Sickospiral</a></li>
+</ul>
+            <div class="sidebar-footer">
+                <p>Digital aesthetics</p><p>Experimental sound design & music</p>
+            </div>
+        </nav>
+        <main id="main-content">
+            <div id="canvas-container"></div>
+            <div id="overlay"><button id="play-button">PLAY</button></div>
+            
+            <div id="custom-player">
+                <button class="square-btn" id="play-btn" onclick="playAudio()">▶</button>
+                <button class="square-btn" id="pause-btn" onclick="pauseAudio()">⏸</button>
+                <button class="square-btn" onclick="skip(10)">+10</button>
+                <div id="progress-container" onclick="seek(event)"><div id="progress-bar"></div></div>
+            </div>
+            
+            <audio id="bg-audio" loop><source src="tracks/shenmue/Shenmue x SBT (M.M. MASHUP) mp3.mp3" type="audio/mpeg"></audio>
+        </main>
+    </div>
+
+    <script>window.CURRENT_TRACK_PATH = 'tracks/shenmue/';</script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="app_interactive_1.js"></script>
+    
+    <script>
+        const audio = document.getElementById('bg-audio');
+        const overlay = document.getElementById('overlay');
+        const playBtnOverlay = document.getElementById('play-button');
+        const progressBar = document.getElementById('progress-bar');
+
+        playBtnOverlay.addEventListener('click', () => {
+            audio.play(); overlay.style.opacity = '0';
+            setTimeout(() => overlay.style.display = 'none', 500);
+            document.getElementById('custom-player').style.display = 'flex';
+        });
+
+        function playAudio() { audio.play(); }
+        function pauseAudio() { audio.pause(); }
+        function skip(time) { audio.currentTime += time; }
+
+        audio.addEventListener('timeupdate', () => {
+            progressBar.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+        });
+
+        function seek(event) {
+            const container = document.getElementById('progress-container');
+            const pos = (event.clientX - container.getBoundingClientRect().left) / container.offsetWidth;
+            audio.currentTime = pos * audio.duration;
+        }
+
+        document.getElementById('mobile-toggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+        document.getElementById('main-content').addEventListener('click', () => document.getElementById('sidebar').classList.remove('open'));
+    </script>
+</body>
+</html>

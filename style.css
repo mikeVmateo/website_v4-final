@@ -1,0 +1,233 @@
+
+body, html {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: #000; font-family: 'Bebas Neue';
+}
+
+#app-layout { display: flex; width: 100vw; height: 100vh; }
+
+#sidebar {
+    width: 200px; background: #000; border-right: 1px solid #333;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 40px 20px; z-index: 30; transition: left 0.3s ease;
+}
+
+.sidebar-logo { max-width: 150px; height: auto; margin: 0 auto; display: block; filter: invert(1); }
+
+.project-list { list-style: none; padding: 0; margin-top: 50px; }
+.project-list li { margin-bottom: 20px; }
+.project-list a { text-decoration: none; color: #666; font-size: 14px; letter-spacing: 1px; transition: 0.3s; }
+.project-list a.active, .project-list a:hover { color: #fff; }
+
+.sidebar-footer { color: #666; font-size: 10px; text-align: center; letter-spacing: 1px; }
+
+#main-content { flex-grow: 1; position: relative; }
+#canvas-container { width: 100%; height: 100%; }
+
+#overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000;
+    display: flex; justify-content: center; align-items: center; z-index: 20; transition: opacity 0.5s ease;
+}
+
+/* =========================================
+   BOUTON PLAY OVERLAY (Glassmorphism)
+   ========================================= */
+#play-button {
+    background: rgba(255, 255, 255, 0.05); /* Fond très légèrement blanc */
+    backdrop-filter: blur(12px); /* Effet verre dépoli */
+    -webkit-backdrop-filter: blur(12px); /* Compatibilité Safari */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure fine et translucide */
+    border-radius: 30px;
+    color: #fff;
+    padding: 15px 40px;
+    font-family: 'Bebas Neue';
+    font-size: 14px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Ombre douce globale */
+    transition: all 0.3s ease;
+}
+
+#play-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* =========================================
+   LECTEUR MP3 DE BASE
+   ========================================= */
+#custom-player {
+    display: none; position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    z-index: 15; flex-direction: row; align-items: center; gap: 20px;
+    background: rgba(255, 255, 255, 0.1); /* Plaque de verre */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 20px 30px; 
+    border-radius: 0px; /* Coins arrondis comme sur l'image */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+#custom-player button {
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    color: #fff; 
+    padding: 10px 20px;
+    border-radius: 0px; /* Boutons en forme de pilule/cercle */
+    cursor: pointer; 
+    font-family: 'Bebas Neue'; 
+    font-size: 11px; 
+    letter-spacing: 2px; 
+    transition: all 0.3s ease;
+}
+
+#custom-player button:hover { 
+    background: rgba(255, 255, 255, 0.2); 
+}
+
+/* Barre de progression épurée */
+#progress-container { 
+    width: 200px; 
+    height: 4px; /* Plus fine */
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 0px; 
+    cursor: pointer; 
+    position: relative; 
+}
+
+#progress-bar { 
+    height: 100%; 
+    background: #fff; /* Ligne blanche pure */
+    width: 0%; 
+    border-radius: 0px;
+    position: relative;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Léger halo lumineux */
+}
+
+/* Ajout de la petite pastille ronde sur la barre de progression (comme sur l'image) */
+#progress-bar::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: -4px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 0px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+#mobile-toggle {
+    display: none; position: fixed; top: 20px; left: 20px; width: 40px; z-index: 40; cursor: pointer; filter: invert(1);
+}
+
+/* === INTERFACE REMIX INTERACTIVE === */
+#remix-interface {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.1); /* Plaque de verre */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 20;
+    display: flex; flex-direction: column; gap: 10px;
+    border-radius: 0px;
+    width: 90%; max-width: 600px;
+    box-sizing: border-box; 
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.track-controls { display: flex; justify-content: center; gap: 15px; width: 100%; }
+
+.remix-btn {
+    flex: 1; 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    color: #fff; /* Texte blanc */
+    padding: 6px 10px; 
+    cursor: pointer;
+    font-family: 'Bebas Neue'; 
+    font-size: 8px; 
+    letter-spacing: 1px; 
+    transition: all 0.3s ease;
+    border-radius: 0px;
+}
+
+.remix-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+/* Piste active plus opaque */
+.active-btn { 
+    background: rgba(255, 255, 255, 0.3); 
+    border-color: rgba(255, 255, 255, 0.5); 
+    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
+
+.parameter-controls { display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap; }
+/* Customisation des Sliders (Inputs range) pour avoir des losanges */
+.slider-group input[type=range] { 
+    -webkit-appearance: none; /* Nécessaire pour styliser les curseurs par défaut */
+    appearance: none;
+    width: 100%; 
+    height: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    cursor: pointer;
+}
+
+/* Le losange pour les navigateurs basés sur Webkit (Chrome, Safari) */
+.slider-group input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    transform: rotate(45deg); /* Le losange */
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Le losange pour Firefox */
+.slider-group input[type=range]::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: none;
+    transform: rotate(45deg); /* Le losange */
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.effect-controls { display: flex; justify-content: center; gap: 20px; margin-top: 5px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2); flex-wrap: wrap; }
+.checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #fff; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+
+/* Checkboxes minimalistes en verre */
+.checkbox-group input[type="checkbox"] { 
+    appearance: none; background-color: rgba(255,255,255,0.05); margin: 0; width: 14px; height: 14px; 
+    border: 1px solid rgba(255,255,255,0.4); display: grid; place-content: center; cursor: pointer; border-radius: 0px;
+}
+
+.checkbox-group input[type="checkbox"]::before { 
+    content: ""; width: 6px; height: 6px; transform: scale(0); transition: 120ms transform ease-in-out; 
+    background-color: #fff; border-radius: 0px;
+}
+
+.checkbox-group input[type="checkbox"]:checked::before { transform: scale(1); }
+
+/* === RESPONSIVE MOBILE === */
+@media (max-width: 768px) {
+    #sidebar { position: fixed; left: -300px; height: 100vh; }
+    #sidebar.open { left: 0; }
+    #mobile-toggle { display: block; }
+    
+    #remix-interface {
+        bottom: 15px;
+        padding: 15px;
+    }
+    .track-controls {
+        flex-direction: column;
+    }
+    .parameter-controls {
+        gap: 15px;
+    }
+}
